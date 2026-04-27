@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install intl gd zip exif \
+    && docker-php-ext-install intl gd zip exif mysqli pdo_mysql \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer (official method)
