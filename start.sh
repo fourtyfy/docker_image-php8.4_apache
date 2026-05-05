@@ -1,6 +1,6 @@
 #!/bin/sh
 
-chown -R www-data:www-data /var/www/html
+chown -R www-data:www-data /var/www
 cd /var/www/html
 
 if [ -f composer.json ]; then
