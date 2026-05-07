@@ -6,6 +6,7 @@ ENV USERNAME=www-data
 
 # Install system dependencies needed by Composer
 RUN apt-get update && apt-get install -y \
+    bash \
     curl \
     imagemagick \
     unzip \
@@ -31,6 +32,8 @@ COPY ./start.sh /var/www/start.sh
 WORKDIR /var/www/html
 
 RUN usermod -u $UID www-data && groupmod -g $GID www-data
+RUN usermod -s /bin/bash www-data
+RUN chsh -s /bin/bash www-data
 
 # Make start script executable
 RUN chmod +x /var/www/start.sh
