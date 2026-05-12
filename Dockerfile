@@ -31,7 +31,7 @@ COPY ./start.sh /var/www/start.sh
 
 WORKDIR /var/www/html
 
-RUN usermod -u $UID www-data && groupmod -g $GID $USER
+RUN usermod -u $UID $USER && groupmod -g $GID $USER
 RUN usermod -s /bin/bash $USER
 RUN chsh -s /bin/bash $USER
 
