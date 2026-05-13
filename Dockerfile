@@ -24,8 +24,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Configure users/groups
 RUN set -eux; \
-    groupmod -o -g ${GID} www-data; \
-    usermod -o -u ${UID} -g ${GID} www-data; \
+    groupmod -o -g ${GID} www-data || true; \
+    usermod -o -u ${UID} -g ${GID} www-data || true; \
+    id -u ${USER} >/dev/null 2>&1 || \
     useradd -m -u ${UID} -g www-data -s /bin/bash ${USER}; \
     usermod -aG www-data ${USER}
 
