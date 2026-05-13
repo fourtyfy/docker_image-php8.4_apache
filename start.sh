@@ -1,7 +1,5 @@
 #!/bin/sh
 
-rm -R /var/www/html
-ln -s ~ /var/www/html
 chown -R www-data:www-data /var/www
 cd /var/www/html
 
