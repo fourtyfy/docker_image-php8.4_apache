@@ -26,9 +26,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN set -eux; \
     groupmod -o -g ${GID} www-data || true; \
     usermod -o -u ${UID} -g ${GID} www-data || true; \
-    id -u ${USER} >/dev/null 2>&1 || \
-    useradd -m -u ${UID} -g www-data -s /bin/bash ${USER}; \
-    usermod -aG www-data ${USER}
+    if ! getent passwd "${UID}" >/dev/null; then \
+        useradd -m -u ${UID} -g www-data -s /bin/bash ${USER}; \
+    fi; \
+    usermod -aG www-data ${USER} || true
 
 # Apache modules
 RUN a2enmod rewrite headers
