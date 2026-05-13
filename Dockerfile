@@ -41,6 +41,9 @@ RUN set -eux; \
     fi; \
     usermod -aG www-data $USER
 
+RUN mkdir -p /home/$USER
+RUN chown -R $USER:www-data /home/$USER
+
 # Apache + PHP configs
 COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY ./docker-php.conf /etc/apache2/conf-available/docker-php.conf
