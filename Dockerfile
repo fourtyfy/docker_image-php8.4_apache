@@ -2,7 +2,7 @@ FROM php:8.4-apache
 
 ENV UID=1000
 ENV GID=1000
-ENV USER=dev
+ENV USER=web
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -23,13 +23,8 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Configure users/groups
-RUN set -eux; \
-    groupmod -o -g ${GID} www-data || true; \
-    usermod -o -u ${UID} -g ${GID} www-data || true; \
-    if ! getent passwd "${UID}" >/dev/null; then \
-        useradd -m -u ${UID} -g www-data -s /bin/bash ${USER}; \
-    fi; \
-    usermod -aG www-data ${USER} || true
+RUN usermod -u ${UID} www-data && groupmod -g ${GID} www-data
+RUN useradd -m -s /bin/bash -g www-data ${USER}
 
 # Apache modules
 RUN a2enmod rewrite headers
@@ -43,7 +38,7 @@ COPY ./start.sh /usr/local/bin/start.sh
 
 RUN chmod +x /usr/local/bin/start.sh
 
-WORKDIR /home/${USER}
+WORKDIR /var/www/html
 
 EXPOSE 80
 
