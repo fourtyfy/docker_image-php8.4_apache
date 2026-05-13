@@ -4,7 +4,7 @@ ENV UID=1000
 ENV GID=1000
 ENV USER=dev
 
-# Install system dependencies needed by Composer
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     bash \
     curl \
@@ -19,43 +19,30 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install intl gd zip exif mysqli pdo_mysql \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Composer (official method)
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Create/update www-data group with GID 1000
-# Create dev user with UID 1000 and primary group www-data
-# Ensure www-data user uses www-data as primary group
+# Configure users/groups
 RUN set -eux; \
-    if getent group www-data >/dev/null; then \
-        groupmod -g 1000 www-data; \
-    else \
-        groupadd -g 1000 www-data; \
-    fi; \
-    if ! id -u $USER >/dev/null 2>&1; then \
-        useradd -m -u 1000 -g www-data -s /bin/bash $USER; \
-    fi; \
-    if id -u www-data >/dev/null 2>&1; then \
-        usermod -g www-data www-data; \
-    else \
-        useradd -r -g www-data -s /usr/sbin/nologin www-data; \
-    fi; \
-    usermod -aG www-data $USER
+    groupmod -o -g ${GID} www-data; \
+    usermod -o -u ${UID} -g ${GID} www-data; \
+    useradd -m -u ${UID} -g www-data -s /bin/bash ${USER}; \
+    usermod -aG www-data ${USER}
 
-RUN mkdir -p /home/$USER
-RUN chown -R $USER:www-data /home/$USER
+# Apache modules
+RUN a2enmod rewrite headers
 
-# Apache + PHP configs
+# Config files
 COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY ./docker-php.conf /etc/apache2/conf-available/docker-php.conf
 COPY ./apache2.conf /etc/apache2/apache2.conf
 COPY ./php-custom.ini /usr/local/etc/php/conf.d/php-custom.ini
-COPY ./start.sh /home/$USER/start.sh
+COPY ./start.sh /usr/local/bin/start.sh
 
-# Make start script executable
-RUN chmod +x /home/$USER/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
-WORKDIR /home/$USER
+WORKDIR /home/${USER}
 
 EXPOSE 80
 
-CMD ["/home/$USER/start.sh"]
+CMD ["/usr/local/bin/start.sh"]
